@@ -20,6 +20,7 @@ type config struct {
 	MaxRetries             int           `envconfig:"VAULT_MAX_RETRIES" default:"5"`
 	VaultKVMountPath       string        `envconfig:"VAULT_KV_MOUNT_PATH" default:"secret"`
 	VaultToken             string        `envconfig:"VAULT_TOKEN"`
+	VaultAuthMount         string        `envconfig:"VAULT_AUTH_MOUNT" default:"kubernetes"`
 	VaultRole              string        `envconfig:"VAULT_ROLE" required:"true"`
 	ServiceAccoutTokenPath string        `envconfig:"SERVICE_ACCOUNT_TOKEN_PATH" default:"/var/run/secrets/kubernetes.io/serviceaccount/token"`
 }
@@ -105,6 +106,7 @@ func (vc *client) configureAuthToken(ctx context.Context) (err error) {
 	k8sAuth, err := vaultauth.NewKubernetesAuth(
 		vc.conf.VaultRole,
 		vaultauth.WithServiceAccountToken(serviceToken),
+		vaultauth.WithMountPath(vc.conf.VaultAuthMount),
 	)
 	if err != nil {
 		return errors.WithMessagef(err, "error in initializing Kubernetes auth method")
